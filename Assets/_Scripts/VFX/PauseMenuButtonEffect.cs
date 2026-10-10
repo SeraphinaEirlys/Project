@@ -142,7 +142,11 @@ public class PauseMenuButtonEffect : MonoBehaviour,
 
     private void PlayClickFlash()
     {
-        if (button == null || !button.IsInteractable() ||
+        if (!isActiveAndEnabled || !gameObject.activeInHierarchy)
+            return;
+
+        if (button == null ||
+            !button.IsInteractable() ||
             selectionCanvasGroup == null)
             return;
 

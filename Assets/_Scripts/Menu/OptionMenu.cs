@@ -20,8 +20,18 @@ public class OptionsMenu : MonoBehaviour
     public Slider musicSlider;
     public Slider sfxSlider;
 
-    [Header("Graphics - Screen Mode")]
-    public TMP_Dropdown screenModeDropdown;
+    [Header("Graphics - Display Mode")]
+    public TMP_Text screenModeText;
+
+    private int currentScreenMode;
+
+    private readonly string[] screenModeNames =
+    {
+        "Fullscreen",
+        "Windowed Borderless",
+        "Windowed"
+    };
+
 
     [Header("Tab Navigation")]
     public TabGroup settingsTabGroup;
@@ -114,28 +124,47 @@ public class OptionsMenu : MonoBehaviour
             recoveryPopupText.text = isOn ? "On" : "Off";
     }
 
-    void InitScreenModes()
+    private void InitScreenModes()
     {
-        if (screenModeDropdown != null)
-        {
-            screenModeDropdown.ClearOptions();
-            List<string> modes = new List<string> { "Fullscreen", "Borderless Window", "Windowed" };
-            screenModeDropdown.AddOptions(modes);
-            
-            screenModeDropdown.value = PlayerPrefs.GetInt("ScreenMode", 0);
-            screenModeDropdown.RefreshShownValue();
-        }
+        int savedMode = PlayerPrefs.GetInt("ScreenMode", 0);
+        SetScreenMode(savedMode);
+    }
+
+    public void CycleScreenMode()
+    {
+        int nextMode = (currentScreenMode + 1) % screenModeNames.Length;
+        SetScreenMode(nextMode);
+
+        PlayerPrefs.Save();
     }
 
     public void SetScreenMode(int index)
     {
-        switch (index)
+        currentScreenMode = Mathf.Clamp(
+            index, 0, screenModeNames.Length - 1);
+
+        switch (currentScreenMode)
         {
-            case 0: Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen; break;
-            case 1: Screen.fullScreenMode = FullScreenMode.FullScreenWindow; break;
-            case 2: Screen.fullScreenMode = FullScreenMode.Windowed; break;
+            case 0:
+                Screen.fullScreenMode =
+                    FullScreenMode.ExclusiveFullScreen;
+                break;
+
+            case 1:
+                Screen.fullScreenMode =
+                    FullScreenMode.FullScreenWindow;
+                break;
+
+            case 2:
+                Screen.fullScreenMode =
+                    FullScreenMode.Windowed;
+                break;
         }
-        PlayerPrefs.SetInt("ScreenMode", index);
+
+        if (screenModeText != null)
+            screenModeText.text = screenModeNames[currentScreenMode];
+
+        PlayerPrefs.SetInt("ScreenMode", currentScreenMode);
     }
 
     public void SetMusicVolume(float sliderValue)
@@ -185,5 +214,62 @@ public class OptionsMenu : MonoBehaviour
             SetSFXVolume(sfxVal);
         }
         else if (sfxSlider != null) sfxSlider.value = 1f;
+    }
+
+    public void RevertCurrentTabToDefault()
+    {
+        // Read the visible tab directly to avoid a one-frame delay.
+        int tabIndex = settingsTabGroup != null
+            ? settingsTabGroup.CurrentIndex
+            : currentPageIndex;
+
+        switch (tabIndex)
+        {
+            case 0: // Gameplay
+                PlayerPrefs.SetInt("ShowDamagePopup", 1);
+                PlayerPrefs.SetInt("ShowRecoveryPopup", 1);
+
+                if (damagePopupText != null)
+                    damagePopupText.text = "On";
+
+                if (recoveryPopupText != null)
+                    recoveryPopupText.text = "On";
+
+                break;
+
+            case 1: // Sound
+                // Update UI without triggering slider callbacks twice.
+                if (musicSlider != null)
+                    musicSlider.SetValueWithoutNotify(1f);
+
+                if (sfxSlider != null)
+                    sfxSlider.SetValueWithoutNotify(1f);
+
+                if (audioMixer != null)
+                {
+                    SetMusicVolume(1f);
+                    SetSFXVolume(1f);
+                }
+                else
+                {
+                    PlayerPrefs.SetFloat("MusicVolume", 1f);
+                    PlayerPrefs.SetFloat("SFXVolume", 1f);
+                    Debug.LogWarning(
+                        "OptionsMenu: AudioMixer has not been assigned.",
+                        this);
+                }
+
+                break;
+
+            case 2: // Graphics
+                SetScreenMode(0);
+                break;
+
+            case 3: // Control
+                // Add reset logic when control settings are implemented.
+                break;
+        }
+
+        PlayerPrefs.Save();
     }
 }
