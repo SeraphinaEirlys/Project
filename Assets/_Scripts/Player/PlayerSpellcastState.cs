@@ -2,10 +2,7 @@ using UnityEngine;
 
 public class PlayerSpellcastState : PlayerState
 {
-    
-
     public PlayerSpellcastState(Player player) : base(player) {}
-
 
     public override void Enter()
     {
@@ -17,7 +14,14 @@ public class PlayerSpellcastState : PlayerState
     {
         base.AnimationFinished();
 
-        if(Mathf.Abs(MoveInput.x) > .1f)
+        // Cast spell TRƯỚC khi chuyển state
+        if (player.magic != null)
+        {
+            player.magic.CastSpell();
+        }
+
+        // Sau đó mới chuyển state
+        if (Mathf.Abs(MoveInput.x) > .1f)
         {
             player.ChangeState(player.moveState);
         }
@@ -30,7 +34,6 @@ public class PlayerSpellcastState : PlayerState
     public override void Exit()
     {
         base.Exit();
-
         anim.SetBool("isCasting", false);
     }
 }

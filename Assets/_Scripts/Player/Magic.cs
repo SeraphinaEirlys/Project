@@ -1,97 +1,73 @@
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class Magic : MonoBehaviour
 {
-
-    [Header("References")]
     public Player player;
-    public SpellUIManager spellUIManager;
+    
+    private int currentPrayers;
 
+    public event Action OnPrayersChanged;
 
-    [Header("Spell State")]
-    [SerializeField] private List<SpellSO> availableSpells = new List<SpellSO>();
-    [SerializeField] private int currentIndex = 0;
-    public SpellSO CurrentSpell => availableSpells.Count > 0 ? availableSpells[currentIndex] : null;
-
-    private Dictionary<SpellSO, float> spellCooldowns = new Dictionary<SpellSO, float>();
-
+    public int CurrentPrayers => currentPrayers;
+    public int MaxPrayers => ProgressionManager.Instance != null ? ProgressionManager.Instance.maxPrayers : 0;
 
     private void Start()
     {
-        spellUIManager.ShowSpells(availableSpells);
-        HighlightCurrentSpell();
-    }
-
-
-    public void LearnSpell(SpellSO spellSO)
-    {
-        if (!availableSpells.Contains(spellSO))
+        if (ProgressionManager.Instance != null)
         {
-            availableSpells.Add(spellSO);
+            currentPrayers = ProgressionManager.Instance.maxPrayers;
+            ProgressionManager.Instance.OnStatsChanged += HandleStatsChanged;
         }
-
-        currentIndex = Mathf.Clamp(currentIndex, 0, availableSpells.Count - 1);
-
-        spellUIManager.ShowSpells(availableSpells);
-
-        if (!spellCooldowns.ContainsKey(spellSO))
-        {
-            spellCooldowns[spellSO] = 0;
-        }
-
-        if(availableSpells.Count > 0)
-        {
-            HighlightCurrentSpell();
-        } 
+        OnPrayersChanged?.Invoke();
     }
 
-
-    public void NextSpell()
+    private void OnDestroy()
     {
-        if(availableSpells.Count == 0) return;
-
-        currentIndex = (currentIndex + 1) % availableSpells.Count;
-        HighlightCurrentSpell();
+        if (ProgressionManager.Instance != null)
+            ProgressionManager.Instance.OnStatsChanged -= HandleStatsChanged;
     }
 
-    public void PreviousSpell()
+    private void HandleStatsChanged()
     {
-        if(availableSpells.Count == 0) return;
-
-        currentIndex = (currentIndex - 1 + availableSpells.Count) % availableSpells.Count;
-        HighlightCurrentSpell();
+        if (ProgressionManager.Instance != null)
+            currentPrayers = ProgressionManager.Instance.maxPrayers;
+        OnPrayersChanged?.Invoke();
     }
 
-
-    private void HighlightCurrentSpell()
+    public void RefillPrayers()
     {
-        if(CurrentSpell != null)
+        if (ProgressionManager.Instance != null)
         {
-            spellUIManager.HighlightSpell(CurrentSpell);
+            currentPrayers = ProgressionManager.Instance.maxPrayers;
+            OnPrayersChanged?.Invoke();
         }
     }
 
-    public void AnimationFinished()
+    public bool TryCastHeal()
     {
-        player.AnimationFinished();
-        CastSpell();
-    }
+        if (ProgressionManager.Instance == null) return false;
 
-    public bool CanCast(SpellSO spellSO)
-    {
-        return Time.time >= spellCooldowns[spellSO];
-    }
-
-    private void CastSpell()
-    {
-        if(!CanCast(CurrentSpell) || CurrentSpell == null)
+        if (currentPrayers > 0 && player.health.health < ProgressionManager.Instance.maxHealth)
         {
-            return;
+            currentPrayers--;
+            OnPrayersChanged?.Invoke();
+            player.ChangeState(player.spellcastState);
+            return true;
         }
-        CurrentSpell.Cast(player);
-
-        spellCooldowns[CurrentSpell] = Time.time + CurrentSpell.cooldown;
-        spellUIManager.TriggerCooldown(CurrentSpell, CurrentSpell.cooldown);
+        return false;
     }
+
+    public void CastSpell()
+    {
+        if (ProgressionManager.Instance == null) return;
+
+        int potency = ProgressionManager.Instance.prayerPotency;
+        player.health.ChangeHealth(potency, player.transform.position);
+        
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlaySound2D("Heal");
+    }
+
+    public int GetCurrentPrayers() => currentPrayers;
 }

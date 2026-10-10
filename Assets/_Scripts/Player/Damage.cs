@@ -5,11 +5,9 @@ public class Damage : MonoBehaviour
     [SerializeField] private Player player;
 
     [Header("Knockback Settings")]
-    public float knockbackForce = 20;
-    public float knockbackDuration = .2f;
+    public float knockbackDuration = .2f; // chỉ còn giữ thời gian phục hồi, lực đến từ kẻ tấn công
 
     public Health health;
-
     public Entity_VFX vfx;
 
     private void OnEnable()
@@ -24,20 +22,21 @@ public class Damage : MonoBehaviour
         health.OnDeath -= HandleDeath;
     }
 
-    void HandleDamage(Vector2 sourcePosition)
+    void HandleDamage(Vector2 sourcePosition, float knockbackForce)
     {
-        int knockbackDir = 0;
-        knockbackDir = transform.position.x > sourcePosition.x ? 1 : -1;
+        int knockbackDir = transform.position.x > sourcePosition.x ? 1 : -1;
 
         vfx?.PlayOnDamageVfx();
 
-
-        player.damagedState.SetParameter(knockbackDir);
+        player.damagedState.SetParameter(knockbackDir, knockbackForce);
         player.ChangeState(player.damagedState);
     }
 
-    void HandleDeath()
+    void HandleDeath(Vector2 sourcePosition, float knockbackForce)
     {
-        
+        int knockbackDir = transform.position.x > sourcePosition.x ? 1 : -1;
+
+        player.deathState.SetParameters(knockbackDir, knockbackForce);
+        player.ChangeState(player.deathState);
     }
 }

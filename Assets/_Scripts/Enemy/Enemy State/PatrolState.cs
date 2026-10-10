@@ -6,6 +6,17 @@ public class PatrolState : State
 
     public PatrolState(Enemy enemy) : base(enemy){}
 
+    public override void Enter()
+    {
+        base.Enter();
+
+        if (config.isStationary)
+        {
+            stateMachine.ChangeState(new IdleState(enemy));
+            return;
+        }
+    }
+
     public override void FixedUpdate()
     {
         base.FixedUpdate();

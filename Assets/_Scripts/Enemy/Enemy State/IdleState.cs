@@ -5,7 +5,17 @@ public class IdleState : State
     private Transform target;
     protected override string AnimBoolName => "isIdling";
 
-    public IdleState(Enemy enemy) : base(enemy) {}
+    private float idleTimer;
+
+    public IdleState(Enemy enemy) : base(enemy) 
+    {
+        this.idleTimer = 0f;
+    }
+
+    public IdleState(Enemy enemy, float duration) : base(enemy)
+    {
+        this.idleTimer = duration;
+    }
 
     public override void Enter()
     {
@@ -17,7 +27,10 @@ public class IdleState : State
     {
         base.FixedUpdate();
 
+        rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+
         target = senses.GetChaseTarget();
+        enemy.CurrentTarget = target;
 
         if (!target)
         {
@@ -27,9 +40,26 @@ public class IdleState : State
 
         enemy.FaceTarget(target);
 
+        if (idleTimer > 0)
+        {
+            idleTimer -= Time.fixedDeltaTime;
+            return; 
+        }
+
         if (senses.IsInMeleeRange(target) && combat.CanMeleeAttack())
         {
             stateMachine.ChangeState(new MeleeAttackState(enemy));
+            return;
+        }
+
+        if (senses.IsInShootingRange(target))
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+
+            if (combat.CanRangedAttack())
+            {
+                stateMachine.ChangeState(new RangedAttackState(enemy));
+            }
             return;
         }
 
@@ -37,13 +67,11 @@ public class IdleState : State
 
         if (distance <= config.turnThreshold)
         {
-            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             return;
         }
 
         if (senses.IsHittingWall() || senses.IsAtCliff())
         {
-            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             return;
         }
 

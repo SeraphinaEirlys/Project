@@ -11,30 +11,34 @@ public class Enemy_Damage : MonoBehaviour
 
     public float deathDelay = 1f;
 
+    [Header("Knockback & Stun Defaults")]
+    public float defaultKnockbackDuration = 0.15f;
+    
+    private Vector2 pendingKnockbackForce;
+    private float pendingStunDuration = 0.8f;
+
+    public void SetPendingHitData(Vector2 knockbackForce, float stunDuration)
+    {
+        pendingKnockbackForce = knockbackForce;
+        pendingStunDuration = stunDuration;
+    }
 
     public void ApplyKnockback(Vector2 force)
     {
-        if(rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-            rb.AddForce(force, ForceMode2D.Impulse);
-        }
+        pendingKnockbackForce = force;
     }
 
+    public void SetPendingStun(float duration)
+    {
+        pendingStunDuration = duration;
+    }
 
     private void Awake()
     {
-        if (rb == null)
-        {
-            TryGetComponent(out rb);
-        }
-
-        if (vfx == null)
-        {
-            TryGetComponent(out vfx);
-        }
+        if (rb == null) TryGetComponent(out rb);
+        if (vfx == null) TryGetComponent(out vfx);
+        if (enemy == null) TryGetComponent(out enemy);
     }
-
 
     private void OnEnable()
     {
@@ -48,23 +52,34 @@ public class Enemy_Damage : MonoBehaviour
         health.OnDeath -= HandleDeath;
     }
 
-    void HandleDamage(Vector2 sourcePosition)
+    void HandleDamage(Vector2 sourcePosition, float knockbackForce)
     {
-        int knockbackDir = 0;
-        knockbackDir = transform.position.x > sourcePosition.x ? 1 : -1;
-
         vfx?.PlayOnDamageVfx();
 
-        enemy.StateMachine.ChangeState(new DamagedState(enemy, knockbackDir));
+        if (enemy != null && enemy.StateMachine != null)
+        {
+            enemy.StateMachine.ChangeState(new DamagedState(
+                enemy,
+                pendingKnockbackForce,
+                defaultKnockbackDuration,
+                pendingStunDuration
+            ));
+
+            pendingKnockbackForce = Vector2.zero;
+        }
     }
 
-    void HandleDeath()
+    void HandleDeath(Vector2 sourcePosition, float knockbackForce)
     {
         anim.SetTrigger("isDead");
-
         GetComponent<Collider2D>().enabled = false;
-        enabled = false;
 
-        Destroy(gameObject, deathDelay);
+        if (enemy != null)
+        {
+            enemy.Die();
+        }
+
+        enabled = false;
+        Destroy(gameObject);
     }
 }

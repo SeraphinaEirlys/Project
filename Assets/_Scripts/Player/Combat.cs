@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Combat : MonoBehaviour
 {
@@ -8,11 +9,14 @@ public class Combat : MonoBehaviour
         public string name;
         
         [Header("Damage")]
-        public int damage = 10;
+        public int damage = 10; // Sát thương cơ bản của riêng đòn đánh này
 
         [Header("Knockback Settings")]
         public bool applyKnockback = false;
         public Vector2 knockbackForce = new Vector2(5f, 2f);
+
+        [Header("Stun Settings")]
+        public float stunDuration = 0.8f;
 
         [Header("Gizmo Settings")]
         public bool showGizmo = true;
@@ -115,29 +119,40 @@ public class Combat : MonoBehaviour
                 }
             }
 
+            HashSet<Enemy_Damage> processedEnemies = new HashSet<Enemy_Damage>();
+
             for (int i = 0; i < hitCount; i++)
             {
                 if (results[i] != null)
                 {
-                    Health hp = results[i].GetComponentInParent<Health>();
-                    if (hp != null)
+                    Enemy_Damage enemyScript = results[i].GetComponentInParent<Enemy_Damage>();
+                    if (enemyScript != null && !processedEnemies.Contains(enemyScript))
                     {
-                        hp.ChangeHealth(-hitbox.damage, transform.position);
-                    }
-
-                    if (hitbox.applyKnockback)
-                    {
-                        Vector2 finalKnockback = new Vector2(hitbox.knockbackForce.x * dir, hitbox.knockbackForce.y);
-
-                        Enemy_Damage enemyScript = results[i].GetComponentInParent<Enemy_Damage>(); //check this later
-                        if (enemyScript != null)
+                        processedEnemies.Add(enemyScript);
+                        
+                        // Tính toán hướng & lực knockback
+                        Vector2 finalKnockback = Vector2.zero;
+                        if (hitbox.applyKnockback)
                         {
-                            enemyScript.ApplyKnockback(finalKnockback);
+                            finalKnockback = new Vector2(hitbox.knockbackForce.x * dir, hitbox.knockbackForce.y);
                         }
-                        else if (results[i].attachedRigidbody != null)
+
+                        // Set cả Knockback lẫn Stun TRƯỚC KHI gọi ChangeHealth
+                        enemyScript.SetPendingHitData(finalKnockback, hitbox.stunDuration);
+
+                        // TÍNH TOÁN SÁT THƯƠNG: base × (100 + attack)% 
+                        int finalDamage = hitbox.damage;
+                        if (ProgressionManager.Instance != null)
                         {
-                            results[i].attachedRigidbody.linearVelocity = Vector2.zero;
-                            results[i].attachedRigidbody.AddForce(finalKnockback, ForceMode2D.Impulse);
+                            finalDamage = Mathf.RoundToInt(
+                                hitbox.damage * (100 + ProgressionManager.Instance.attackPower) / 100f
+                            );
+                        }
+
+                        Health hp = results[i].GetComponentInParent<Health>();
+                        if (hp != null)
+                        {
+                            hp.ChangeHealth(-finalDamage, transform.position);
                         }
                     }
                 }

@@ -20,11 +20,6 @@ public class PlayerIdleState : PlayerState
             player.ChangeState(player.fallState);
             return;
         }
-
-        if (SpellcastPressed && magic.CanCast(magic.CurrentSpell))
-        {
-            player.ChangeState(player.spellcastState);
-        }
         else if (player.ConsumeAttackBuffer() && player.CanAttack)
         {
             player.ChangeState(player.attackState);

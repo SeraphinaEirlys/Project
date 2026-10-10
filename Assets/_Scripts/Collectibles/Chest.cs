@@ -14,7 +14,22 @@ public class Chest : MonoBehaviour
     private PlayerInput playerInput;
     private bool isOpened;
 
+    private PersistentGUID persistentGUID;
 
+    private void Awake()
+    {
+        persistentGUID = GetComponent<PersistentGUID>();
+    }
+
+    private void Start()
+    {
+        if (persistentGUID != null && WorldState.Instance != null && WorldState.Instance.openedChests.Contains(persistentGUID.GUID))
+        {
+            isOpened = true;
+
+            anim.Play("ChestOpenedIdle"); 
+        }
+    }
 
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -57,8 +72,15 @@ public class Chest : MonoBehaviour
 
     private IEnumerator OpenChestRoutine()
     {
+        if (isOpened) yield break;
+
         isOpened = true;
         anim.Play("ChestOpen");
+
+        if (persistentGUID != null && WorldState.Instance != null)
+        {
+            WorldState.Instance.openedChests.Add(persistentGUID.GUID);
+        }
 
         yield return new WaitForSeconds(spawnDelay);
 

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyConfig
   turnThreshold: 1
   patrolSpeed: 5
+  isStationary: 0
   groundCheckDistance: 3
   wallCheckDistance: 0.7
   groundLayer:
@@ -27,5 +28,15 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 128
+  returnsToStart: 0
   meleeRange: 1
   meleeDamage: 2
+  meleeCooldown: 1
+  rangedRange: 0
+  rangedDamage: 0
+  rangedCooldown: 0
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 0
+  projectileLifetime: 0
+  knockbackDuration: 0.2
+  knockbackForce: 10

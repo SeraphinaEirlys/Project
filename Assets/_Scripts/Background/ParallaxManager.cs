@@ -7,43 +7,43 @@ public class ParallaxManager : MonoBehaviour
     {
         [Tooltip("Transform của Layer cha")]
         public Transform layer;
-
         [Range(0f, 1f)]
         public float parallaxFactor;
-
         [HideInInspector] public float startPosX;
         [HideInInspector] public float lengthX;
     }
 
     public ParallaxLayer[] layers;
-    public Transform camTransform;
-
-    void Start()
+    private Transform camTransform;
+    
+    private void Start()
     {
-        if (camTransform == null)
-            camTransform = Camera.main.transform;
+        if (Camera.main != null) camTransform = Camera.main.transform;
+
+        Collider2D confiner = GetComponent<Collider2D>();
+        float roomCenterX = (confiner != null) ? confiner.bounds.center.x : transform.position.x;
 
         foreach (var layer in layers)
         {
             if (layer.layer == null) continue;
 
-            layer.startPosX = layer.layer.position.x;
+            layer.startPosX = layer.layer.position.x - (roomCenterX * layer.parallaxFactor);
 
             SpriteRenderer sr = layer.layer.GetComponent<SpriteRenderer>();
             if (sr != null)
             {
                 layer.lengthX = sr.bounds.size.x;
             }
-            else
-            {
-                Debug.LogWarning($"Layer {layer.layer.name} thiếu SpriteRenderer trên GameObject cha!");
-            }
         }
     }
 
-    void FixedUpdate()
+    void LateUpdate()
     {
-        if (camTransform == null) return;
+        if (camTransform == null)
+        {
+            if (Camera.main != null) camTransform = Camera.main.transform;
+            return;
+        }
 
         float camX = camTransform.position.x;
 
@@ -52,7 +52,6 @@ public class ParallaxManager : MonoBehaviour
             if (layer.layer == null) continue;
 
             float distance = camX * layer.parallaxFactor;
-
             float movement = camX * (1f - layer.parallaxFactor);
 
             Vector3 currentPos = layer.layer.position;

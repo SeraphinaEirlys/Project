@@ -15,6 +15,8 @@ public class MeleeAttackState : State
 
     public override void OnAnimationFinished()
     {
-        stateMachine.ChangeState(new IdleState(enemy));
+        float recoveryDuration = 0.6f; 
+
+        stateMachine.ChangeState(new IdleState(enemy, recoveryDuration));
     }
 }

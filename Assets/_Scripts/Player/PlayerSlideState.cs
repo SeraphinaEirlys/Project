@@ -18,6 +18,8 @@ public class PlayerSlideState : PlayerState
         slideStopTimer = 0;
         isStopping = false;
 
+        if (player.health != null) player.health.isInvincible = true;
+
         player.SetColliderSlide();
         anim.SetBool("isSliding", true);
     }
@@ -98,6 +100,8 @@ public class PlayerSlideState : PlayerState
     public override void Exit()
     {
         base.Exit();
+
+        if (player.health != null) player.health.isInvincible = false;
 
         player.SetColliderNormal();
         anim.SetBool("isSliding", false);

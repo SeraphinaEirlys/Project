@@ -17,6 +17,21 @@ public class Loot : MonoBehaviour
 
     private PlayerInput playerInput;
 
+    private PersistentGUID persistentGUID;
+
+    private void Awake()
+    {
+        persistentGUID = GetComponent<PersistentGUID>();
+    }
+
+    private void Start()
+    {
+        if (persistentGUID != null && WorldState.Instance != null && WorldState.Instance.collectedLoot.Contains(persistentGUID.GUID))
+        {
+            Destroy(gameObject);
+        }
+    }
+
     public void Initialize(CollectibleSO collectibleSO)
     {
         this.collectibleSO = collectibleSO;
@@ -71,7 +86,12 @@ public class Loot : MonoBehaviour
 
     private void CollectItem()
     {
-        canBeCollected = false; // Ngăn chặn nhặt lặp lại
+        canBeCollected = false;
+
+        if (persistentGUID != null && WorldState.Instance != null)
+        {
+            WorldState.Instance.collectedLoot.Add(persistentGUID.GUID);
+        }
 
         if (itemMessage != null && collectibleSO != null)
         {

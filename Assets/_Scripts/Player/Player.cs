@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 public class Player : MonoBehaviour
 {
@@ -18,6 +19,8 @@ public class Player : MonoBehaviour
     public PlayerWallJumpState wallJumpState;
     public PlayerWallSlideState wallSlideState;
     public PlayerDamagedState damagedState;
+    public PlayerDeathState deathState;
+    public PlayerDashState dashState;
 
     [Header("Core Components")]
     public Combat combat;
@@ -41,6 +44,7 @@ public class Player : MonoBehaviour
     public float jumpGravity;
 
     public int facingDirection = 1;
+    [HideInInspector] public bool isControlLocked = false;
 
     // Inputs
     public Vector2 moveInput;
@@ -74,7 +78,7 @@ public class Player : MonoBehaviour
 
     [Header("Wall Check")]
     public Transform wallCheck;
-    public float wallCheckRadius = .15f;
+    public float wallCheckDistance = .5f;
     public LayerMask wallLayer;
     public bool isTouchingWall;
 
@@ -82,16 +86,24 @@ public class Player : MonoBehaviour
     public float attackCooldown = 0.3f;
     [HideInInspector] public float attackCooldownTimer;
 
-    [Header("Combo Memory")]
-    [Tooltip("Đòn vừa đánh xong (0 = không có combo chờ)")]
+    [Header("Dash Settings")]
+    public float dashSpeed = 24f;
+    public float dashDuration = 0.2f;
+    public float dashCooldown = 1f;
+    public float dashExitMomentum = 0.5f;
+
+    [HideInInspector] public float dashCooldownTimer;
+    [HideInInspector] public bool dashPressed;
+    public float dashStopDuration = 0.08f;
+
+    public bool CanDash => dashCooldownTimer <= 0f;
+
     public int comboMemoryStep = 0;
     public bool comboMemoryIsRising = false;
 
-    [Tooltip("Thời gian sống của combo memory sau khi clip kết thúc (giây)")]
     public float comboWindowDuration = 1f;
     [HideInInspector] public float comboWindowExpireTime = 0f;
 
-    [Tooltip("Cooldown phạt khi để combo memory hết hạn")]
     public float missedComboCooldown = 0.5f;
 
     [Header("Air Attack Cooldown")]
@@ -109,6 +121,13 @@ public class Player : MonoBehaviour
     public void WallJumpLaunch() => currentState.WallJumpLaunch();
     public void LockFacing() => isFacingLocked = true;
     public void UnlockFacing() => isFacingLocked = false;
+
+    [Header("VFX")]
+    public GameObject dashSmokePrefab;
+
+    public GameObject afterImagePrefab;
+    public float afterImageCooldown = 0.05f;
+    [HideInInspector] public float lastAfterImageTime;
 
     private void Awake()
     {
@@ -131,6 +150,8 @@ public class Player : MonoBehaviour
         wallJumpState = new PlayerWallJumpState(this);
         wallSlideState = new PlayerWallSlideState(this);
         damagedState = new PlayerDamagedState(this);
+        deathState = new PlayerDeathState(this);
+        dashState = new PlayerDashState(this);
     }
 
     private void Start()
@@ -143,8 +164,35 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        if (Time.timeScale == 0f)
+        {
+            dashPressed = false;
+            attackBuffered = false;
+            return;
+        }
+
+        if (isControlLocked)
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            return;
+        }
+
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            attackBuffered = false;
+        }
+
+        if (dashCooldownTimer > 0f) dashCooldownTimer -= Time.deltaTime;
+
         if (attackCooldownTimer > 0f) attackCooldownTimer -= Time.deltaTime;
         if (airAttackCooldownTimer > 0f) airAttackCooldownTimer -= Time.deltaTime;
+
+        if (dashPressed && dashCooldownTimer <= 0f && currentState != dashState && currentState != deathState && currentState != damagedState)
+        {
+            dashPressed = false;
+            dashCooldownTimer = dashCooldown;
+            ChangeState(dashState);
+        }
 
         if (comboMemoryStep > 0 && Time.time > comboWindowExpireTime)
         {
@@ -211,7 +259,9 @@ public class Player : MonoBehaviour
 
     void CheckForWalls()
     {
-        isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, wallLayer);
+        Vector2 checkDirection = Vector2.right * facingDirection;
+        RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, checkDirection, wallCheckDistance, wallLayer);
+        isTouchingWall = hit.collider != null;
     }
 
     public bool CheckForCeiling()
@@ -227,6 +277,8 @@ public class Player : MonoBehaviour
 
     void Flip()
     {
+        if (currentState == deathState) return;
+
         if (isFacingLocked) return;
 
         if (moveInput.x > .1f)
@@ -263,7 +315,7 @@ public class Player : MonoBehaviour
         if (value.isPressed) attackBuffered = true;
     }
 
-    private void OnLeftShoulder(InputValue value)
+    /*private void OnLeftShoulder(InputValue value)
     {
         if (value.isPressed) magic.PreviousSpell();
     }
@@ -271,11 +323,27 @@ public class Player : MonoBehaviour
     private void OnRightShoulder(InputValue value)
     {
         if (value.isPressed) magic.NextSpell();
-    }
+    }*/
 
     public void OnSpellcast(InputValue value)
     {
+        Debug.Log($"[Player] OnSpellcast called! isPressed={value.isPressed}, currentState={currentState?.GetType().Name}");
+
         spellcastPressed = value.isPressed;
+
+        if (value.isPressed && currentState != spellcastState && currentState != deathState && currentState != damagedState)
+        {
+            if (magic != null)
+            {
+                Debug.Log("[Player] Calling magic.TryCastHeal()");
+                bool result = magic.TryCastHeal();
+                Debug.Log($"[Player] TryCastHeal returned: {result}");
+            }
+            else
+            {
+                Debug.LogWarning("[Player] magic is NULL!");
+            }
+        }
     }
 
     public void OnJump(InputValue value)
@@ -297,11 +365,19 @@ public class Player : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+        if (groundCheck != null)
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+
         Gizmos.color = Color.white;
-        Gizmos.DrawWireSphere(headCheck.position, headCheckRadius);
+        if (headCheck != null)
+            Gizmos.DrawWireSphere(headCheck.position, headCheckRadius);
+
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(wallCheck.position, wallCheckRadius);
+        if (wallCheck != null)
+        {
+            Vector3 checkDirection = Vector3.right * facingDirection;
+            Gizmos.DrawLine(wallCheck.position, wallCheck.position + checkDirection * wallCheckDistance);
+        }
     }
 
     public void FinishLandingAnimation()
@@ -369,6 +445,11 @@ public class Player : MonoBehaviour
         comboMemoryStep = 0;
         comboMemoryIsRising = false;
         comboWindowExpireTime = 0f;
+    }
+
+    public void OnDash(InputValue value)
+    {
+        dashPressed = Time.timeScale > 0f && value.isPressed;
     }
 
     public bool CanWallSlide => !isGrounded && isTouchingWall && (moveInput.x * facingDirection > 0.1f);

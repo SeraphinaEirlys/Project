@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fc5b3e8087e2f9489fffdcafa8edfe8, type: 3}
+  m_Name: Flyer
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyConfig
+  turnThreshold: 0.2
+  patrolSpeed: 5
+  isStationary: 1
+  groundCheckDistance: 3
+  wallCheckDistance: 1.5
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  chaseSpeed: 7
+  chaseRange: 10
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  returnsToStart: 1
+  meleeRange: 0
+  meleeDamage: 0
+  meleeCooldown: 0
+  rangedRange: 8
+  rangedDamage: 15
+  rangedCooldown: 2
+  projectilePrefab: {fileID: 6088513721148350323, guid: 15ec237a20e6db8478475b464ec4081d, type: 3}
+  projectileSpeed: 12
+  projectileLifetime: 5
+  knockbackDuration: 0.2
+  knockbackForce: 15

@@ -22,11 +22,7 @@ public class PlayerMoveState : PlayerState
             return;
         }
 
-        if (SpellcastPressed && magic.CanCast(magic.CurrentSpell))
-        {
-            player.ChangeState(player.spellcastState);
-        }
-        else if (player.ConsumeAttackBuffer() && player.CanAttack)
+        if (player.ConsumeAttackBuffer() && player.CanAttack)
         {
             player.ChangeState(player.attackState);
         }
