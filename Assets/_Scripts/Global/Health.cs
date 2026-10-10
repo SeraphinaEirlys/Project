@@ -13,6 +13,7 @@ public class Health : MonoBehaviour
 
     [Header("UI Popups")]
     public GameObject damagePopupPrefab;
+    public GameObject recoveryPopupPrefab;
 
     private void Start()
     {
@@ -22,6 +23,10 @@ public class Health : MonoBehaviour
     public void ChangeHealth(int amount, Vector2 sourcePosition, float knockbackForce = 0f)
     {
         if (isInvincible && amount < 0) return;
+
+        int actualRecovery = amount > 0
+            ? Mathf.Max(0, Mathf.Min(amount, maxHealth - health))
+            : 0;
 
         health += amount;
 
@@ -38,6 +43,24 @@ public class Health : MonoBehaviour
             {
                 popupScript.Setup(amount);
             }
+        }
+
+        bool showRecovery =
+            PlayerPrefs.GetInt("ShowRecoveryPopup", 1) == 1;
+
+        if (showRecovery && actualRecovery > 0 && recoveryPopupPrefab != null)
+        {
+            float randomX = UnityEngine.Random.Range(-0.5f, 0.5f);
+            Vector3 spawnPos =
+                transform.position + new Vector3(randomX, 0.5f, 0f);
+
+            GameObject popup = Instantiate(
+                recoveryPopupPrefab, spawnPos, Quaternion.identity);
+
+            DamagePopup popupScript = popup.GetComponent<DamagePopup>();
+
+            if (popupScript != null)
+                popupScript.Setup(actualRecovery);
         }
 
         if (health > maxHealth)

@@ -7,7 +7,6 @@ public static class SettingsRowHighlightGenerator
     private const int Width = 1024;
     private const int Height = 128;
 
-    // Tăng/giảm độ sáng nền được tạo ra.
     private const float MaxAlpha = 0.95f;
 
     private static readonly Color Tint =
@@ -38,13 +37,10 @@ public static class SettingsRowHighlightGenerator
                     float u = (x + 0.5f) / Width;
                     float v = (y + 0.5f) / Height;
 
-                    // Dải sáng tập trung ở giữa theo chiều dọc,
-                    // rồi mờ dần về mép trên và dưới.
                     float vertical = v - 0.5f;
                     float verticalFade =
                         Mathf.Exp(-(vertical * vertical) * 34f);
 
-                    // Hai đầu dải sáng mờ dần theo chiều ngang.
                     float leftFade = Mathf.SmoothStep(0f, 0.10f, u);
                     float rightFade =
                         1f - Mathf.SmoothStep(0.90f, 1f, u);

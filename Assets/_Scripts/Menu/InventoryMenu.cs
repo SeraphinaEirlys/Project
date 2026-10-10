@@ -23,7 +23,6 @@ public class InventoryMenu : MonoBehaviour
 
     void Update()
     {
-        // fade in mượt, dùng unscaledDeltaTime vì lúc này timeScale = 0
         canvasGroup.alpha = Mathf.MoveTowards(
             canvasGroup.alpha, 1f, fadeInSpeed * Time.unscaledDeltaTime);
 

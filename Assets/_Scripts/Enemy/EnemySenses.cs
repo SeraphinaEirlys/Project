@@ -68,12 +68,10 @@ public class EnemySenses : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // Ground Check
         Gizmos.color = Color.yellow;
         if (groundCheck != null && config != null)
             Gizmos.DrawLine(groundCheck.position, groundCheck.position + Vector3.down * config.groundCheckDistance);
 
-        // Wall Check
         Gizmos.color = Color.red;
         if (wallChecks != null && enemy != null && config != null)
         {
@@ -85,17 +83,14 @@ public class EnemySenses : MonoBehaviour
             }
         }
 
-        // Chase Check
         Gizmos.color = Color.blue;
         if (attackPoint != null && config != null)
             Gizmos.DrawWireSphere(attackPoint.position, config.chaseRange);
         
-        // Melee Check
         Gizmos.color = Color.magenta;
         if (attackPoint != null && config != null)
             Gizmos.DrawWireSphere(attackPoint.position, config.meleeRange);
 
-        // Ranged Check (Thêm theo video)
         Gizmos.color = Color.green;
         if (attackPoint != null && config != null)
             Gizmos.DrawWireSphere(attackPoint.position, config.rangedRange);

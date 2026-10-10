@@ -37,7 +37,6 @@ public class MenuAudioDucking : MonoBehaviour
 
     private void OnApplicationFocus(bool hasFocus)
     {
-        // Hạ âm ngay khi cửa sổ mất focus.
         if (!hasFocus)
             AudioListener.volume = normalListenerVolume * duckMultiplier;
     }

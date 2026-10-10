@@ -5,7 +5,7 @@ public class Damage : MonoBehaviour
     [SerializeField] private Player player;
 
     [Header("Knockback Settings")]
-    public float knockbackDuration = .2f; // chỉ còn giữ thời gian phục hồi, lực đến từ kẻ tấn công
+    public float knockbackDuration = .2f;
 
     public Health health;
     public Entity_VFX vfx;

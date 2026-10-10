@@ -18,10 +18,9 @@ public static class FrameGenerator
         for (int y = 0; y < h; y++)
         for (int x = 0; x < w; x++)
         {
-            int cx = Mathf.Min(x, w - 1 - x);   // khoảng cách tới cạnh dọc gần nhất
-            int cy = Mathf.Min(y, h - 1 - y);   // khoảng cách tới cạnh ngang gần nhất
+            int cx = Mathf.Min(x, w - 1 - x);
+            int cy = Mathf.Min(y, h - 1 - y);
 
-            // viền mảnh 2px, riêng ở góc dày thành 4px (tạo cảm giác góc nhọn)
             bool horiz = cy < 2 || (cy < 4 && cx < corner);
             bool vert  = cx < 2 || (cx < 4 && cy < corner);
 
@@ -51,7 +50,7 @@ public static class FrameGenerator
         imp.filterMode = FilterMode.Bilinear;
         imp.wrapMode = TextureWrapMode.Clamp;
         imp.textureCompression = TextureImporterCompression.Uncompressed;
-        imp.spriteBorder = new Vector4(corner, corner, corner, corner); // cho 9-slice
+        imp.spriteBorder = new Vector4(corner, corner, corner, corner);
         imp.SaveAndReimport();
         Debug.Log("Đã tạo " + path);
     }

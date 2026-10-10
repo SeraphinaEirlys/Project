@@ -29,14 +29,12 @@ public class ChaseState : State
 
         enemy.FaceTarget(target);
 
-        // 1. Ưu tiên Melee Attack
         if (senses.IsInMeleeRange(target) && combat.CanMeleeAttack())
         {
             stateMachine.ChangeState(new MeleeAttackState(enemy));
             return;
         }
 
-        // 2. Nếu đã trong tầm bắn (kể cả đang cooldown) → ĐỨNG YÊN, không tiến thêm
         if (senses.IsInShootingRange(target))
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
@@ -45,7 +43,7 @@ public class ChaseState : State
             {
                 stateMachine.ChangeState(new RangedAttackState(enemy));
             }
-            return; // dù bắn được hay đang cooldown, đều KHÔNG tiến lại gần
+            return;
         }
 
         float distance = Mathf.Abs(target.position.x - enemy.transform.position.x);

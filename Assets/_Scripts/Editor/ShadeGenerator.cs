@@ -8,11 +8,9 @@ public static class ShadeGenerator
     [MenuItem("Tools/Generate Shade Gradients")]
     static void Generate()
     {
-        // ShadeTop: đậm ở trên, trong suốt ở dưới
         Make("Assets/_Sprites/UI/ShadeTop.png", 4, 256,
             (x, y, w, h) => Mathf.Pow(y / (float)(h - 1), 1.5f));
 
-        // ShadeLeft: đậm ở trái, trong suốt ở phải
         Make("Assets/_Sprites/UI/ShadeLeft.png", 256, 4,
             (x, y, w, h) => Mathf.Pow(1f - x / (float)(w - 1), 1.5f));
     }

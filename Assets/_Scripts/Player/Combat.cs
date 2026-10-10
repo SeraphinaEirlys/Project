@@ -9,7 +9,7 @@ public class Combat : MonoBehaviour
         public string name;
         
         [Header("Damage")]
-        public int damage = 10; // Sát thương cơ bản của riêng đòn đánh này
+        public int damage = 10;
 
         [Header("Knockback Settings")]
         public bool applyKnockback = false;
@@ -130,17 +130,14 @@ public class Combat : MonoBehaviour
                     {
                         processedEnemies.Add(enemyScript);
                         
-                        // Tính toán hướng & lực knockback
                         Vector2 finalKnockback = Vector2.zero;
                         if (hitbox.applyKnockback)
                         {
                             finalKnockback = new Vector2(hitbox.knockbackForce.x * dir, hitbox.knockbackForce.y);
                         }
 
-                        // Set cả Knockback lẫn Stun TRƯỚC KHI gọi ChangeHealth
                         enemyScript.SetPendingHitData(finalKnockback, hitbox.stunDuration);
 
-                        // TÍNH TOÁN SÁT THƯƠNG: base × (100 + attack)% 
                         int finalDamage = hitbox.damage;
                         if (ProgressionManager.Instance != null)
                         {

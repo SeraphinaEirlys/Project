@@ -53,7 +53,6 @@ public class Loot : MonoBehaviour
     {
         if (!canBeCollected || playerInput == null) return;
 
-        // Kiểm tra nút bấm tương tác (phím Interact hoặc nút Hướng Lên giống Rương)
         Vector2 moveInput = playerInput.actions["Move"].ReadValue<Vector2>();
         bool pressedUp = moveInput.y > 0.1f;
         bool pressedInteract = playerInput.actions["Interact"].WasPressedThisFrame();

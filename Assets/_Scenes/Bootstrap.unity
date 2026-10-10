@@ -558,7 +558,7 @@ MonoBehaviour:
   m_ScrollWheelAction: {fileID: 6240969308177333660, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
   m_TrackedDevicePositionAction: {fileID: 6564999863303420839, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
   m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_DeselectOnBackgroundClick: 1
+  m_DeselectOnBackgroundClick: 0
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
   m_ScrollDeltaPerTick: 6
@@ -1974,7 +1974,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 8.4375
+  orthographic size: 3.6875
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2580,6 +2580,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PauseMenuButtonEffect
   hoverSoundName: UI_Hover
+  keepHighlightWhenSelected: 0
   hoverBackground: {fileID: 375880030}
   buttonText: {fileID: 1662742454}
   selectionCanvasGroup: {fileID: 0}
@@ -3225,6 +3226,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PauseMenuButtonEffect
   hoverSoundName: UI_Hover
+  keepHighlightWhenSelected: 0
   hoverBackground: {fileID: 3273394359635135807}
   buttonText: {fileID: 1557106039}
   selectionCanvasGroup: {fileID: 0}
@@ -5262,6 +5264,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PauseMenuButtonEffect
   hoverSoundName: UI_Hover
+  keepHighlightWhenSelected: 0
   hoverBackground: {fileID: 1457331075}
   buttonText: {fileID: 1334997595}
   selectionCanvasGroup: {fileID: 0}
@@ -5850,6 +5853,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PauseMenuButtonEffect
   hoverSoundName: UI_Hover
+  keepHighlightWhenSelected: 0
   hoverBackground: {fileID: 793671354}
   buttonText: {fileID: 313909502}
   selectionCanvasGroup: {fileID: 0}
@@ -8933,7 +8937,11 @@ PrefabInstance:
     - target: {fileID: 4950881683672758271, guid: ad34296f3b4b3c349866a73093bb7b6d, type: 3}
       propertyPath: damagePopupPrefab
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 6288975102239505803, guid: 2267b17b8dfa24b41b3cf74b78bd6069, type: 3}
+    - target: {fileID: 4950881683672758271, guid: ad34296f3b4b3c349866a73093bb7b6d, type: 3}
+      propertyPath: recoveryPopupPrefab
+      value: 
+      objectReference: {fileID: 6288975102239505803, guid: 070c1fd65dcafdf49a4d530f2434e0a1, type: 3}
     - target: {fileID: 6803418826337071307, guid: ad34296f3b4b3c349866a73093bb7b6d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -11.59

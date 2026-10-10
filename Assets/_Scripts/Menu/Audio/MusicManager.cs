@@ -11,7 +11,7 @@ public class MusicManager : MonoBehaviour
     [SerializeField] private AudioSource musicSource;
 
     [Header("Mixer Routing")]
-    [SerializeField] private AudioMixerGroup musicMixerGroup;  // ⚠️ KÉO "Music" group vào đây
+    [SerializeField] private AudioMixerGroup musicMixerGroup;
 
     private void Awake()
     {
@@ -25,7 +25,6 @@ public class MusicManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         }
 
-        // ⚠️ QUAN TRỌNG: Route AudioSource qua Mixer Group
         if (musicSource != null && musicMixerGroup != null)
         {
             musicSource.outputAudioMixerGroup = musicMixerGroup;
@@ -56,13 +55,11 @@ public class MusicManager : MonoBehaviour
 
     IEnumerator AnimateMusicCrossfade(AudioClip nextTrack, float fadeDuration = 0.5f)
     {
-        // Guard: tránh chia cho 0
         if (fadeDuration <= 0.001f) fadeDuration = 0.001f;
 
         float percent = 0;
         float startVolume = musicSource.volume;
 
-        // Fade OUT
         while (percent < 1)
         {
             percent += Time.unscaledDeltaTime / fadeDuration;
@@ -73,8 +70,6 @@ public class MusicManager : MonoBehaviour
         musicSource.clip = nextTrack;
         musicSource.Play();
 
-        // Fade IN — luôn fade về 1f, KHÔNG phải volume đã set
-        // Vì volume thực đã được điều khiển bởi AudioMixer Group!
         percent = 0;
         while (percent < 1)
         {
@@ -83,6 +78,6 @@ public class MusicManager : MonoBehaviour
             yield return null;
         }
 
-        musicSource.volume = 1f;  // Đảm bảo chốt = 1f
+        musicSource.volume = 1f;
     }
 }

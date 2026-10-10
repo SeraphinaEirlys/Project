@@ -4,13 +4,11 @@ using UnityEngine;
 
 public static class PauseHoverCoreGenerator
 {
-    // Match the canvas and frame geometry of PauseHoverGenerator.
     private const int Width = 720;
     private const int Height = 132;
     private const float FramePadding = 10f;
     private const float CornerCut = 12f;
 
-    // Adjust these values, then run the generator again.
     private const float CoreOpacity = 0.26f;
     private const float EdgeSoftness = 18f;
     private const float BorderGap = 2f;
@@ -49,7 +47,6 @@ public static class PauseHoverCoreGenerator
                     Mathf.Max(ax - halfWidth, ay - halfHeight),
                     cornerDistance);
 
-                // Keep the core inside the chamfered frame and soften its edges.
                 float edgeMask = Mathf.SmoothStep(
                     0f, 1f,
                     Mathf.InverseLerp(BorderGap, EdgeSoftness, -distance));

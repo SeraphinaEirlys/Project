@@ -22,11 +22,11 @@ public class TabButton : MonoBehaviour,
     [SerializeField, Range(0f, 1f)] float hoverGlow = 0f;
 
     [Header("Nhấp nháy của tab đang chọn")]
-    [SerializeField, Range(0f, 1f)] float glowMin = 0.3f;   // độ sáng thấp nhất
-    [SerializeField, Range(0f, 1f)] float glowMax = 1f;     // độ sáng cao nhất
-    [SerializeField] float breathSpeed = 4f;                // 4 = chu kỳ ~1.6 giây
-    [SerializeField, Range(0f, 1f)] float irregularity = 0.3f; // 0 = đều, cao = lúc nhanh lúc chậm
-    [SerializeField, Range(0f, 0.3f)] float breathScale = 0.1f; // elip phồng to nhỏ theo nhịp
+    [SerializeField, Range(0f, 1f)] float glowMin = 0.3f;
+    [SerializeField, Range(0f, 1f)] float glowMax = 1f;
+    [SerializeField] float breathSpeed = 4f;
+    [SerializeField, Range(0f, 1f)] float irregularity = 0.3f;
+    [SerializeField, Range(0f, 0.3f)] float breathScale = 0.1f;
 
     [SerializeField] float speed = 12f;
 
@@ -64,7 +64,6 @@ public class TabButton : MonoBehaviour,
         float s = Mathf.Lerp(1f, hoverScale, hoverT);
         transform.localScale = Vector3.one * Mathf.Lerp(s, selectedScale, selectT);
 
-        // sóng 0..1: trộn sóng chậm và sóng nhanh cho nhịp tự nhiên
         float t = Time.unscaledTime * breathSpeed + phase;
         float slow = 0.5f + 0.5f * Mathf.Sin(t);
         float fast = 0.5f + 0.5f * Mathf.Sin(t * 2.7f + 1.3f);

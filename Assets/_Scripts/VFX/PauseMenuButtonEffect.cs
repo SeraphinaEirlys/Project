@@ -16,6 +16,9 @@ public class PauseMenuButtonEffect : MonoBehaviour,
     [Header("Audio")]
     public string hoverSoundName = "UI_Hover";
 
+    [Header("Selection")]
+    public bool keepHighlightWhenSelected = false;
+
     [Header("UI Elements")]
     public GameObject hoverBackground;
     public TextMeshProUGUI buttonText;
@@ -110,7 +113,11 @@ public class PauseMenuButtonEffect : MonoBehaviour,
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        ApplyEffect(false, false);
+        bool selected =
+            EventSystem.current != null &&
+            EventSystem.current.currentSelectedGameObject == gameObject;
+
+        ApplyEffect(keepHighlightWhenSelected && selected, false);
     }
 
     public void OnSelect(BaseEventData eventData)

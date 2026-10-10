@@ -4,11 +4,8 @@ using UnityEngine;
 
 public static class PauseHoverGenerator
 {
-    // Ảnh gấp đôi kích thước nút 360 x 66.
     private const int Width = 720;
     private const int Height = 132;
-
-    // Các giá trị bên dưới có thể chỉnh rồi generate lại.
     private const float FillOpacity = 0.12f;
     private const float BorderOpacity = 0.48f;
     private const float GlowOpacity = 0.10f;
@@ -17,7 +14,6 @@ public static class PauseHoverGenerator
     private const float GlowSoftness = 5f;
     private const float CornerCut = 12f;
 
-    // Màu trắng bạc hơi lạnh.
     private static readonly Color Tint =
         new Color(0.91f, 0.90f, 0.96f, 1f);
 
@@ -36,7 +32,6 @@ public static class PauseHoverGenerator
 
         var pixels = new Color[Width * Height];
 
-        // Chừa khoảng trống quanh khung để chứa glow.
         float halfFrameWidth = Width * 0.5f - 10f;
         float halfFrameHeight = Height * 0.5f - 10f;
 
@@ -50,8 +45,6 @@ public static class PauseHoverGenerator
                 float ax = Mathf.Abs(px);
                 float ay = Mathf.Abs(py);
 
-                // Khoảng cách tới khung chữ nhật có góc vát.
-                // Âm: bên trong. Dương: bên ngoài.
                 float verticalDistance = ax - halfFrameWidth;
                 float horizontalDistance = ay - halfFrameHeight;
 
@@ -64,18 +57,15 @@ public static class PauseHoverGenerator
                     Mathf.Max(verticalDistance, horizontalDistance),
                     cornerDistance);
 
-                // Viền có cạnh mềm để hạn chế răng cưa.
                 float border = 1f - Mathf.SmoothStep(
                     BorderThickness * 0.5f,
                     BorderThickness * 0.5f + 1f,
                     Mathf.Abs(distance));
 
-                // Glow mềm quanh đường viền.
                 float glowDistance = distance / GlowSoftness;
                 float glow = Mathf.Exp(
                     -glowDistance * glowDistance);
 
-                // Nền sáng nhẹ, tập trung ở giữa nút.
                 float nx = px / halfFrameWidth;
                 float ny = py / halfFrameHeight;
 
@@ -90,7 +80,6 @@ public static class PauseHoverGenerator
                 float fill = inside * FillOpacity *
                     Mathf.Lerp(0.35f, 1f, centerLight);
 
-                // Kết hợp các lớp alpha.
                 float alpha = fill;
 
                 alpha = 1f - (1f - alpha) *
@@ -99,7 +88,6 @@ public static class PauseHoverGenerator
                 alpha = 1f - (1f - alpha) *
                     (1f - border * BorderOpacity);
 
-                // Fade về trong suốt ở mép ảnh.
                 float edgeDistance = Mathf.Min(
                     Mathf.Min(x, Width - 1 - x),
                     Mathf.Min(y, Height - 1 - y));

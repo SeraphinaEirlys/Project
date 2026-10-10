@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Audio;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 public class OptionsMenu : MonoBehaviour
 {
@@ -11,7 +12,8 @@ public class OptionsMenu : MonoBehaviour
     private int currentPageIndex = 0;
 
     [Header("Gameplay")]
-    public TMP_Text damagePopupText; // Kéo object chứa chữ "On" bên phải vào đây
+    public TMP_Text damagePopupText;
+    public TMP_Text recoveryPopupText;
 
     [Header("Audio")]
     public AudioMixer audioMixer;
@@ -21,25 +23,55 @@ public class OptionsMenu : MonoBehaviour
     [Header("Graphics - Screen Mode")]
     public TMP_Dropdown screenModeDropdown;
 
-    // Dùng OnEnable để mỗi lần mở bảng Option lên là nó load lại số liệu và về trang đầu tiên
+    [Header("Tab Navigation")]
+    public TabGroup settingsTabGroup;
+    
+
     private void OnEnable() => ApplySavedSettings();
+
+    private void Update()
+    {
+        if (settingsTabGroup == null)
+            return;
+
+        var keyboard = Keyboard.current;
+
+        if (keyboard != null)
+        {
+            if (keyboard.qKey.wasPressedThisFrame)
+                settingsTabGroup.Prev();
+            else if (keyboard.eKey.wasPressedThisFrame)
+                settingsTabGroup.Next();
+        }
+
+        if (currentPageIndex != settingsTabGroup.CurrentIndex)
+            SwitchPage(settingsTabGroup.CurrentIndex);
+    }
 
     public void ApplySavedSettings()
     {
         InitScreenModes();
         LoadSettings();
-        SwitchPage(0); // Luôn mở tab Gameplay đầu tiên
+        SwitchPage(0);
     }
 
-    // ================= XỬ LÝ CHUYỂN TRANG (TABS) =================
     public void SwitchPage(int pageIndex)
     {
-        currentPageIndex = pageIndex;
+        if (optionPages == null || optionPages.Length == 0)
+            return;
+
+        currentPageIndex =
+            (pageIndex % optionPages.Length + optionPages.Length)
+            % optionPages.Length;
+
         for (int i = 0; i < optionPages.Length; i++)
         {
             if (optionPages[i] != null)
-                optionPages[i].SetActive(i == currentPageIndex); // Tự động bật/tắt trang
+                optionPages[i].SetActive(i == currentPageIndex);
         }
+
+        if (settingsTabGroup != null)
+            settingsTabGroup.Select(currentPageIndex);
     }
 
     public void NextPage()
@@ -56,26 +88,32 @@ public class OptionsMenu : MonoBehaviour
         SwitchPage(prev);
     }
 
-    // ================= XỬ LÝ GAMEPLAY =================
     public void ToggleDamagePopup()
     {
-        // Lấy trạng thái hiện tại (Mặc định là 1 - Bật)
         bool isOn = PlayerPrefs.GetInt("ShowDamagePopup", 1) == 1;
         
-        // Đảo ngược trạng thái
         isOn = !isOn; 
 
-        // Lưu lại cài đặt
         PlayerPrefs.SetInt("ShowDamagePopup", isOn ? 1 : 0);
 
-        // Đổi chữ trên UI
         if (damagePopupText != null)
         {
             damagePopupText.text = isOn ? "On" : "Off";
         }
     }
 
-    // ================= XỬ LÝ ĐỒ HỌA =================
+    public void ToggleRecoveryPopup()
+    {
+        bool isOn = PlayerPrefs.GetInt("ShowRecoveryPopup", 1) == 1;
+        isOn = !isOn;
+
+        PlayerPrefs.SetInt("ShowRecoveryPopup", isOn ? 1 : 0);
+        PlayerPrefs.Save();
+
+        if (recoveryPopupText != null)
+            recoveryPopupText.text = isOn ? "On" : "Off";
+    }
+
     void InitScreenModes()
     {
         if (screenModeDropdown != null)
@@ -100,7 +138,6 @@ public class OptionsMenu : MonoBehaviour
         PlayerPrefs.SetInt("ScreenMode", index);
     }
 
-    // ================= XỬ LÝ ÂM THANH =================
     public void SetMusicVolume(float sliderValue)
     {
         if (sliderValue <= 0.0001f)
@@ -121,17 +158,18 @@ public class OptionsMenu : MonoBehaviour
         PlayerPrefs.SetFloat("SFXVolume", sliderValue);
     }
 
-    // ================= TẢI CẤU HÌNH =================
     void LoadSettings()
     {
-        // Load Gameplay Settings
         bool isPopupOn = PlayerPrefs.GetInt("ShowDamagePopup", 1) == 1; 
+        bool showRecovery = PlayerPrefs.GetInt("ShowRecoveryPopup", 1) == 1;
         if (damagePopupText != null)
         {
             damagePopupText.text = isPopupOn ? "On" : "Off";
         }
 
-        // Load Audio Settings
+        if (recoveryPopupText != null)
+            recoveryPopupText.text = showRecovery ? "On" : "Off";
+
         if (PlayerPrefs.HasKey("MusicVolume"))
         {
             float musicVal = PlayerPrefs.GetFloat("MusicVolume");

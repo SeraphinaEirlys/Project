@@ -5,7 +5,6 @@ public class ParallaxManager : MonoBehaviour
     [System.Serializable]
     public class ParallaxLayer
     {
-        [Tooltip("Transform của Layer cha")]
         public Transform layer;
         [Range(0f, 1f)]
         public float parallaxFactor;

@@ -14,7 +14,7 @@ public class TextGlowPulse : MonoBehaviour
     [SerializeField, Range(0f, 1f)] float textMinOuter = 0.6f;
     [SerializeField, Range(0f, 1f)] float textMaxOuter = 1f;
     [SerializeField, Range(0f, 1f)] float textInner = 0.1f;
-    [SerializeField, Range(0.1f, 2f)] float textPower = 0.6f;   // thấp = tỏa mềm và rộng hơn
+    [SerializeField, Range(0.1f, 2f)] float textPower = 0.6f;
 
     [Header("Vầng sáng lớn phía sau (kéo TitleHalo vào)")]
     [SerializeField] Image halo;
@@ -33,7 +33,7 @@ public class TextGlowPulse : MonoBehaviour
     void Awake()
     {
         text = GetComponent<TMP_Text>();
-        mat = text.fontMaterial;                    // bản sao riêng của chữ này
+        mat = text.fontMaterial;
         mat.EnableKeyword(ShaderUtilities.Keyword_Glow);
         mat.SetFloat(ShaderUtilities.ID_GlowOffset, 0f);
         mat.SetFloat(ShaderUtilities.ID_GlowInner, textInner);
@@ -49,13 +49,11 @@ public class TextGlowPulse : MonoBehaviour
         float fast = 0.5f + 0.5f * Mathf.Sin(t * 1.9f + 1.1f);
         float w = Mathf.Lerp(slow, fast, irregularity);
 
-        // glow sát chữ
         Color c = glowColor;
         c.a = Mathf.Lerp(textMinAlpha, textMaxAlpha, w);
         mat.SetColor(ShaderUtilities.ID_GlowColor, c);
         mat.SetFloat(ShaderUtilities.ID_GlowOuter, Mathf.Lerp(textMinOuter, textMaxOuter, w));
 
-        // vầng sáng lớn
         if (halo != null)
         {
             Color h = glowColor;

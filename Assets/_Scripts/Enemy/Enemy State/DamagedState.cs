@@ -8,13 +8,11 @@ public class DamagedState : State
     private float knockbackTimer;
     private float stunTimer;
 
-    // knockbackDuration: thời gian đẩy lùi (thường ngắn: 0.15s - 0.2s)
-    // stunDuration: tổng thời gian bị khống chế/đơ đòn
     public DamagedState(Enemy enemy, Vector2 knockbackVelocity, float knockbackDuration, float stunDuration) : base(enemy)
     {
         this.knockbackVelocity = knockbackVelocity;
         this.knockbackTimer = knockbackDuration;
-        this.stunTimer = Mathf.Max(stunDuration, knockbackDuration); // Đảm bảo stun không ngắn hơn knockback
+        this.stunTimer = Mathf.Max(stunDuration, knockbackDuration);
     }
 
     public override void Enter()
@@ -24,7 +22,6 @@ public class DamagedState : State
         enemy.CanAct = false;
         anim.SetBool("isAttacking", false);
 
-        // Gán thẳng vận tốc tức thì -> knockback bén, không bị ì ạch bởi Mass
         rb.linearVelocity = knockbackVelocity;
     }
 
@@ -41,7 +38,6 @@ public class DamagedState : State
             }
         }
 
-        // 2. Quản lý thời gian Stun
         stunTimer -= Time.fixedDeltaTime;
         if (stunTimer <= 0)
         {

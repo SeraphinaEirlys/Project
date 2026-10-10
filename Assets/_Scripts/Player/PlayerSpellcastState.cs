@@ -14,13 +14,11 @@ public class PlayerSpellcastState : PlayerState
     {
         base.AnimationFinished();
 
-        // Cast spell TRƯỚC khi chuyển state
         if (player.magic != null)
         {
             player.magic.CastSpell();
         }
 
-        // Sau đó mới chuyển state
         if (Mathf.Abs(MoveInput.x) > .1f)
         {
             player.ChangeState(player.moveState);
