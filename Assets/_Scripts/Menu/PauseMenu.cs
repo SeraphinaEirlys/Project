@@ -41,6 +41,9 @@ public class PauseMenu : MonoBehaviour
 
     private void Update()
     {
+        if (AttackBindingSlotSelector.BlocksMenuInput)
+            return;
+
         if (SceneManager.GetActiveScene().name == mainMenuSceneName) return;
 
         var kb = Keyboard.current;

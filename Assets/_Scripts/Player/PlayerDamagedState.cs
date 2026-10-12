@@ -23,6 +23,10 @@ public class PlayerDamagedState : PlayerState
     {
         base.Enter();
 
+        player.attackBuffered = false;
+        player.attackPressed = false;
+        player.ResetComboMemory();
+
         isAnimationFinished = false;
         safetyTimer = 0f;
         anim.SetBool("isDamaged", true);

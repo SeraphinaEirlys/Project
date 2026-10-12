@@ -200,7 +200,7 @@ public class Player : MonoBehaviour
             attackCooldownTimer = Mathf.Max(attackCooldownTimer, missedComboCooldown);
         }
 
-        if (attackBuffered && CanAttack && HasComboMemory && currentState != attackState && currentState != airAttackState && isGrounded)
+        if (attackBuffered && CanAttack && HasComboMemory && currentState != attackState && currentState != airAttackState && currentState != damagedState && currentState != deathState && isGrounded)
         {
             ChangeState(attackState);
         }
@@ -311,19 +311,24 @@ public class Player : MonoBehaviour
 
     public void OnAttack(InputValue value)
     {
+        bool blocked =
+            Time.timeScale == 0f ||
+            isControlLocked ||
+            currentState == damagedState ||
+            currentState == deathState;
+
+        if (blocked)
+        {
+            attackPressed = false;
+            attackBuffered = false;
+            return;
+        }
+
         attackPressed = value.isPressed;
-        if (value.isPressed) attackBuffered = true;
-    }
 
-    /*private void OnLeftShoulder(InputValue value)
-    {
-        if (value.isPressed) magic.PreviousSpell();
+        if (value.isPressed)
+            attackBuffered = true;
     }
-
-    private void OnRightShoulder(InputValue value)
-    {
-        if (value.isPressed) magic.NextSpell();
-    }*/
 
     public void OnSpellcast(InputValue value)
     {

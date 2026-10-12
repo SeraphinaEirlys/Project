@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 4737295962327294336}
   - component: {fileID: 1324084450859255937}
   - component: {fileID: 4689590497980614965}
+  - component: {fileID: 3815454013948152766}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -193,6 +194,7 @@ MonoBehaviour:
   fallGravity: 6
   jumpGravity: 3
   facingDirection: 1
+  isControlLocked: 0
   moveInput: {x: 0, y: 0}
   runPressed: 0
   jumpPressed: 0
@@ -226,8 +228,10 @@ MonoBehaviour:
   dashSpeed: 16
   dashDuration: 0.25
   dashCooldown: 0.8
+  dashExitMomentum: 0.5
   dashCooldownTimer: 0
   dashPressed: 0
+  dashStopDuration: 0.08
   comboMemoryStep: 0
   comboMemoryIsRising: 0
   comboWindowDuration: 0.8
@@ -236,6 +240,22 @@ MonoBehaviour:
   airAttackCooldown: 0.5
   airAttackCooldownTimer: 0
   isFacingLocked: 0
+  dashSmokePrefab: {fileID: 0}
+  afterImagePrefab: {fileID: 0}
+  afterImageCooldown: 0.05
+  lastAfterImageTime: 0
+--- !u!114 &3815454013948152766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 809912801949009244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71ce807d2be8d1a4e8e1dac189726090, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerKeybindLoader
 --- !u!1 &928325902174897120
 GameObject:
   m_ObjectHideFlags: 0
@@ -433,9 +453,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Magic
   player: {fileID: 4689590497980614965}
-  spellUIManager: {fileID: 0}
-  availableSpells: []
-  currentIndex: 1
 --- !u!114 &4950881683672758271
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -450,6 +467,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Health
   health: 100
   maxHealth: 100
+  damagePopupPrefab: {fileID: 0}
+  recoveryPopupPrefab: {fileID: 0}
 --- !u!114 &7973510980013116761
 MonoBehaviour:
   m_ObjectHideFlags: 0

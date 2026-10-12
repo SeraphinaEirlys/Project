@@ -41,6 +41,9 @@ public class OptionsMenu : MonoBehaviour
 
     private void Update()
     {
+        if (AttackBindingSlotSelector.BlocksMenuInput)
+            return;
+
         if (settingsTabGroup == null)
             return;
 

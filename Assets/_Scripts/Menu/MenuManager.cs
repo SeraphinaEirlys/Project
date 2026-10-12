@@ -27,6 +27,9 @@ public class MainMenu : MonoBehaviour
 
     private void Update()
     {
+        if (AttackBindingSlotSelector.BlocksMenuInput)
+            return;
+
         if (optionPanel != null && optionPanel.activeSelf &&
             Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
