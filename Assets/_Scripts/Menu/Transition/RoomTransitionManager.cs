@@ -12,7 +12,7 @@ public class RoomTransitionManager : MonoBehaviour
         if (isTransitioning) 
             return;
 
-        EnterRoom("", "");
+        EnterRoom("", "GameStart");
     }
 
     public void EnterRoom(string sceneName, string spawnID)
@@ -48,12 +48,12 @@ public class RoomTransitionManager : MonoBehaviour
             yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
             SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
             currentRoom = sceneName;
-            SetupRoom(spawnID);
+            SetupRoom(spawnID, player);
         }
         else
         {
             currentRoom = SceneManager.GetActiveScene().name;
-            SetupRoom(spawnID);
+            SetupRoom(spawnID, player);
         }
 
         yield return new WaitForSeconds(0.25f); 
@@ -69,23 +69,27 @@ public class RoomTransitionManager : MonoBehaviour
         isTransitioning = false; 
     }
 
-    private void SetupRoom(string spawnID)
+    private void SetupRoom(string spawnID, Player player)
     {
-        if (string.IsNullOrEmpty(spawnID)) return;
+        if (player == null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrEmpty(spawnID))
+        {
+            return;
+        }
 
         SpawnPoint[] spawns = FindObjectsByType<SpawnPoint>(FindObjectsSortMode.None);
-        if (spawns.Length == 0) return;
 
-        SpawnPoint spawnToUse = spawns[0];
         foreach (SpawnPoint spawn in spawns)
         {
             if (spawn.spawnID == spawnID)
             {
-                spawnToUse = spawn;
-                break;
+                player.transform.position = spawn.transform.position;
+                return;
             }
         }
-
-        transform.position = spawnToUse.transform.position;
     }
 }

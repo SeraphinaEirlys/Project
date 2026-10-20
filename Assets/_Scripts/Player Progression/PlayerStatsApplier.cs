@@ -40,5 +40,7 @@ public class PlayerStatsApplier : MonoBehaviour
         {
             health.health = Mathf.Min(health.health + increase, newMax); 
         }
+
+        health.NotifyHealthChanged();
     }
 }

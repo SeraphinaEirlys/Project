@@ -5,6 +5,7 @@ public class Health : MonoBehaviour
 {
     public event Action<Vector2, float> OnDamaged;
     public event Action<Vector2, float> OnDeath;
+    public event Action<int, int> OnHealthChanged;
 
     public int health;
     public int maxHealth;
@@ -18,6 +19,12 @@ public class Health : MonoBehaviour
     private void Start()
     {
         health = maxHealth;
+        OnHealthChanged?.Invoke(health, maxHealth);
+    }
+
+    public void NotifyHealthChanged()
+    {
+        OnHealthChanged?.Invoke(health, maxHealth);
     }
 
     public void ChangeHealth(int amount, Vector2 sourcePosition, float knockbackForce = 0f)
@@ -67,7 +74,10 @@ public class Health : MonoBehaviour
         {
             health = maxHealth;
         }
-        else if (health <= 0)
+
+        OnHealthChanged?.Invoke(health, maxHealth);
+
+        if (health <= 0)
         {
             OnDeath?.Invoke(sourcePosition, knockbackForce);
         }
@@ -75,5 +85,11 @@ public class Health : MonoBehaviour
         {
             OnDamaged?.Invoke(sourcePosition, knockbackForce);
         }
+    }
+
+    public void SetHealth(int amount)
+    {
+        health = Mathf.Clamp(amount, 0, maxHealth);
+        OnHealthChanged?.Invoke(health, maxHealth);
     }
 }
